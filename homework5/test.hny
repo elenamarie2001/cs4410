@@ -1,0 +1,30 @@
+import stack
+
+const NPUSH = 2
+const NPOP = 2
+const NPOST = 2
+
+s = stack.Stack()
+
+def push_test(self):
+    print("call push", self)
+    stack.push(?s, self)
+    print("done push", self)
+
+def pop_test(self):
+    print("call pop", self)
+    let v = stack.pop(?s):
+        print("done pop", self, v)
+
+def post_test(self):
+    print("call post", self)
+    stack.post(?s)
+    print("done post", self)
+
+
+for i in {1..NPUSH}:
+    spawn push_test(i)
+for i in {1..NPOP}:
+    spawn pop_test(i)
+for i in {i..NPOST}:
+    spawn post_test(i)
