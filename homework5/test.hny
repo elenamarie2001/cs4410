@@ -2,7 +2,7 @@ import stack
 
 const NPUSH = 2
 const NPOP = 2
-const NPOST = 2
+const NPOST = 1
 
 s = stack.Stack()
 

@@ -1,0 +1,27 @@
+from synch import BinSema, acquire, release
+from alloc import malloc, free
+
+def Stack():
+    result = { .head:None, .lock: Lock() }
+
+def push(s, v):
+    let node = malloc({.value: v, .next: None}):
+        acquire(?s->lock)
+        if s->head == None:
+            s->head = node 
+        else:
+            node->next = s->head
+            s->head = node
+        release(?s->lock)
+
+def pop(s):
+    acquire(?s->lock)
+    let node = s->head:
+        if s->head == None:
+            result = None
+        else:
+            result = node->value
+            s->head = node->next
+            free(node)
+        release(?s->lock)
+

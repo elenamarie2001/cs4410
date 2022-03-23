@@ -15,5 +15,5 @@ def pop(s):
             !s = list.tail(!s)
 
 def post(s):
-    while !s != []:
-        pass
+    atomically:
+        await !s != []
