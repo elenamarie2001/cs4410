@@ -17,4 +17,4 @@ def pop(s):
 def post(s):
     atomically:
         while !s != []:
-            skip
+            pass
