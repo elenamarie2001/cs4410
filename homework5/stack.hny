@@ -4,16 +4,17 @@ def Stack():
     result = []
 
 def push(s, v):
-    atomically: !s = [v,] + !s 
+    atomically !s = [v,] + !s 
 
 def pop(s):
-    atomically:
-        if !s == []:
-            result = None
-        else:
-            result = list.head(!s)
-            !s = list.tail(!s)
+    atomically when !s != []:
+        result = list.head(!s)
+        !s = list.tail(!s)
+        # if !s == []:
+        #     result = None
+        # else:
+        #     result = list.head(!s)
+        #     !s = list.tail(!s)
 
 def post(s):
-    atomically:
-        await !s != []
+    atomically await !s == []

@@ -1,27 +1,19 @@
-from synch import BinSema, acquire, release
-from alloc import malloc, free
+import list
+import bag
 
-def Stack():
-    result = { .head:None, .lock: Lock() }
+def wait(c, lk):
+    var cnt = 0
+    let (), ctx = save():
+        atomically:
+            cnt = bag.multiplicity(!c, ctx)
+            !c = bag.add(!c, ctx)
+            !lk = False
+        atomically when (not !lk) and (bag.multiplicity(!c, ctx) <= cnt):
+            !lk = True
 
-def push(s, v):
-    let node = malloc({.value: v, .next: None}):
-        acquire(?s->lock)
-        if s->head == None:
-            s->head = node 
-        else:
-            node->next = s->head
-            s->head = node
-        release(?s->lock)
+def notify(c):
+    atomically if !c != bag.empty():
+        !c = bag.remove(!c, bag.bchoose(!c))
 
-def pop(s):
-    acquire(?s->lock)
-    let node = s->head:
-        if s->head == None:
-            result = None
-        else:
-            result = node->value
-            s->head = node->next
-            free(node)
-        release(?s->lock)
-
+def notifyAll(c):
+    atomically !c = bag.empty()

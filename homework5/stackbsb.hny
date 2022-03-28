@@ -2,26 +2,49 @@ from synch import BinSema, acquire, release
 from alloc import malloc, free
 
 def Stack():
-    result = { .head:None, .binsema: BinSema(False) }
+    result = { .head: None, .binsema: BinSema(False), .pop: { .sema: BinSema(True), .count: 0 }, .post: { .sema: BinSema(True), .count: 0 } }
+
+def release_one(s):
+    if (s->pop.count > 0) and (s->head != None):
+        release(?s->pop.sema)
+    elif (s->post.count > 0) and (s->head == None):
+        release(?s->post.sema)
+    else:
+        release(?s->binsema)
 
 def push(s, v):
-    let node = malloc({.value: v, .next: None}):
-        acquire(?s->binsema)
-        if s->head == None:
-            s->head = node 
-        else:
-            node->next = s->head
-            s->head = node
-        release(?s->binsema)
+    # let node = malloc({.value: v, .next: None}):
+    acquire(?s->binsema)
+    s->head = malloc({ .value: v, .next: s->head })
+        # if s->head == None:
+        #     s->head = node 
+        # else:
+        #     node->next = s->head
+        #     s->head = node
+        #release(?s->binsema)
+    release_one(s)
 
 def pop(s):
     acquire(?s->binsema)
+    if s->head == None:
+        #waiting part here: waits until there is a head
+        s->pop.count += 1
+        release(?s->binsema) 
+        acquire(?s->pop.sema)
+        s->pop.count -= 1
     let node = s->head:
-        if s->head == None:
-            result = None
-        else:
-            result = node->value
-            s->head = node->next
-            free(node)
-        release(?s->binsema)
+        assert node != None
+        result = node->value
+        s->head = node->next
+        free(node)
+        # release(?s->binsema)
+    release_one(s)
 
+def post(s):
+    acquire(?s->binsema)
+    if s->head != None:
+        s->post.count += 1
+        release(?s->binsema) 
+        acquire(?s->post.sema)
+        s->post.count -= 1
+    release_one(s)
