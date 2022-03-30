@@ -1,19 +1,30 @@
-import list
-import bag
+from synch import *
+from alloc import malloc, free
 
-def wait(c, lk):
-    var cnt = 0
-    let (), ctx = save():
-        atomically:
-            cnt = bag.multiplicity(!c, ctx)
-            !c = bag.add(!c, ctx)
-            !lk = False
-        atomically when (not !lk) and (bag.multiplicity(!c, ctx) <= cnt):
-            !lk = True
+def Stack():
+    result = { .head: None, .mutex: Lock(), .c_pop: Condition(), .c_post: Condition() }
 
-def notify(c):
-    atomically if !c != bag.empty():
-        !c = bag.remove(!c, bag.bchoose(!c))
+def push(s, v):    
+    acquire(?s->mutex)
+    s->head = malloc({ .value: v, .next: s->head })
+    notify(?s->c_pop)
+    release(?s->mutex)
 
-def notifyAll(c):
-    atomically !c = bag.empty()
+def pop(s):
+    acquire(?s->mutex)
+    while (s->head == None):
+        wait(?s->c_pop, ?s->mutex)
+    let node = s->head:
+        assert node != None
+        result = node->value
+        s->head = node->next
+        free(node)
+    if s->head == None:
+        notifyAll(?s->c_post)
+    release(?s->mutex)
+
+def post(s):
+    acquire(?s->mutex)
+    while (s->head != None):
+        wait(?s->c_post, ?s->mutex)
+    release(?s->mutex)

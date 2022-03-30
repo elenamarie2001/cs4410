@@ -10,11 +10,6 @@ def pop(s):
     atomically when !s != []:
         result = list.head(!s)
         !s = list.tail(!s)
-        # if !s == []:
-        #     result = None
-        # else:
-        #     result = list.head(!s)
-        #     !s = list.tail(!s)
 
 def post(s):
     atomically await !s == []

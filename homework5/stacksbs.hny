@@ -13,15 +13,8 @@ def release_one(s):
         release(?s->binsema)
 
 def push(s, v):
-    # let node = malloc({.value: v, .next: None}):
     acquire(?s->binsema)
     s->head = malloc({ .value: v, .next: s->head })
-        # if s->head == None:
-        #     s->head = node 
-        # else:
-        #     node->next = s->head
-        #     s->head = node
-        #release(?s->binsema)
     release_one(s)
 
 def pop(s):
@@ -37,7 +30,6 @@ def pop(s):
         result = node->value
         s->head = node->next
         free(node)
-        # release(?s->binsema)
     release_one(s)
 
 def post(s):
